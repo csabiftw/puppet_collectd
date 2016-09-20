@@ -22,9 +22,13 @@ if aws_integration
         rescue Exception
                 puts "ERROR: Unable to get AWS metadata, exception occurred!"
         end
-        unless response.nil? || response == 0
-                result = JSON.parse(response.body)
-                dimensions << "sfxdim_AWSUniqueId=#{result["instanceId"]}_#{result["region"]}_#{result["accountId"]}&"
+        unless response.nil? || response == 0 || response.code != "200"
+                begin
+                    result = JSON.parse(response.body)
+                    dimensions << "sfxdim_AWSUniqueId=#{result["instanceId"]}_#{result["region"]}_#{result["accountId"]}&"
+                rescue Exception
+                    puts "ERROR: Unable to get AWS metadata, exception occurred!"
+                end
         end
 end
 unless dimension_list.empty?
